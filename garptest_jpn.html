@@ -1,0 +1,119 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>実験ページへのリンク</title>
+</head>
+<body>
+<h1>実験ページへのリンク</h1>
+<p>「経済現象を読み解く」2021年10月25日実施</p>
+<p>ボタンを押して実験ページへ進む．</p>
+<button onclick="newtab()">New Tab</button>
+</body>
+
+
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyACwq5OC3Gp-adTs38_pnjTyikKnCz6sCs",
+  authDomain: "garp-jpn.firebaseapp.com",
+  projectId: "garp-jpn"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+//const db = firebase.firestore();
+const auth = firebase.auth();
+
+function toemail (idstr) {
+  const email = idstr + '@example.jp';
+  return email;
+}
+
+async function checkid(mturkid) {
+  const providers = await auth.fetchSignInMethodsForEmail(toemail(mturkid));
+  if ( providers["0"] === "password" ){
+    console.log("exist");
+    return true;
+  } else {
+    console.log("NOT exist");
+  }
+}
+
+async function signup(mturkid, passwd) {
+  const results = await auth.createUserWithEmailAndPassword(toemail(mturkid), passwd)
+    .then( result => {
+      console.log("sign-up succeeded");
+      console.log(result.user.uid);
+      return {res: result.user.uid, err: null};
+    })
+    .catch( error => {
+      console.log('sign-up error');
+      console.log(error.message);
+      return {res: null, err: error.code};
+    });
+  return results;
+}
+
+async function signin(mturkid, passwd) {
+  const results = await auth.signInWithEmailAndPassword(toemail(mturkid), passwd)
+    .then( result => {
+      console.log("sign-in succeeded");
+      console.log(result.user.uid);
+      return {res: result.user.uid, err: null};
+    })
+    .catch( error => {
+      console.log('sign-in error');
+      console.log(error.message);
+      return {res: null, err: error.code};
+    });
+  return results;
+}
+
+function getRndStr(len){
+  const str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  var result = "";
+  for(var i=0;i<len;i++){
+    result += str.charAt(Math.floor(Math.random() * str.length));
+  }
+  return result;
+}
+
+
+
+
+
+
+function newtab() {
+const tmpid = getRndStr(7);
+const tmpidtime = Date.now();
+console.log(tmpid);
+console.log(tmpidtime);
+const tmppwd = getRndStr(20);
+console.log(tmppwd);
+
+signup(tmpidtime+tmpid, tmppwd);
+
+var urlstr = tmpidtime + tmpid + tmppwd;
+console.log("urlstr: ", urlstr);
+
+
+var addr = "https://garp-jpn.firebaseapp.com/?params=" + urlstr;
+window.open(addr);
+
+
+}
+
+
+
+
+
+
+
+</script>
+
+
+
+</html>
